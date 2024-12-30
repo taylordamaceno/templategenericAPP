@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  db:
+    build:
+      context: ./MeuNovoApp_db
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DB: MeuNovoApp
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./MeuNovoApp_backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://youruser:yourpassword@db:5432/MeuNovoApp
+    ports:
+      - "3001:3001" # Corrigido de "3000" para "3001"
+    depends_on:
+      - db
+    entrypoint: ["sh", "-c", "sleep 10 && npm start"]
+
+  frontend:
+    build:
+      context: ./MeuNovoApp_frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    entrypoint: ["sh", "-c", "sleep 20 && npm start"]
